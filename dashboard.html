@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SmartPark - Live Dashboard</title>
+<style>
+  /* Beginner note: this page has no build step - it's plain HTML/CSS/JS.
+     dashboard.py serves this file, and the <script> below polls
+     dashboard.py's /api/spots endpoint once a second to redraw. */
+
+  :root {
+    --bg: #0f1115;
+    --card: #171a21;
+    --text: #e8eaed;
+    --muted: #8a919e;
+    --free: #2ecc71;
+    --occupied: #e74c3c;
+    --unknown: #6b7280;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 2.5rem;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+
+  h1 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.5rem;
+  }
+
+  #summary {
+    color: var(--muted);
+    margin-bottom: 1.75rem;
+    font-size: 1rem;
+  }
+
+  #summary strong {
+    color: var(--text);
+  }
+
+  #grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 14px;
+    max-width: 700px;
+  }
+
+  .spot {
+    background: var(--card);
+    border-radius: 10px;
+    padding: 14px 10px;
+    text-align: center;
+    border-top: 4px solid var(--unknown);
+    transition: border-color 0.3s ease, transform 0.15s ease;
+  }
+
+  .spot.free { border-top-color: var(--free); }
+  .spot.occupied { border-top-color: var(--occupied); }
+  .spot.unknown { border-top-color: var(--unknown); }
+
+  .spot .id {
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+
+  .spot .label {
+    margin-top: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .spot.free .label { color: var(--free); }
+  .spot.occupied .label { color: var(--occupied); }
+  .spot.unknown .label { color: var(--unknown); }
+
+  .spot .time {
+    margin-top: 4px;
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+
+  #footer {
+    margin-top: 2rem;
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  #footer .dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--free);
+    margin-right: 6px;
+    animation: pulse 1s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+</style>
+</head>
+<body>
+  <h1>SmartPark - Union Deck, Floor 3</h1>
+  <div id="summary">Loading...</div>
+  <div id="grid"></div>
+  <div id="footer"><span class="dot"></span>Live - last checked: <span id="last-checked">-</span></div>
+
+<script>
+async function refresh() {
+  try {
+    // cache: 'no-store' makes sure the browser always asks dashboard.py
+    // for fresh data instead of reusing an old response.
+    const res = await fetch('/api/spots', { cache: 'no-store' });
+    const data = await res.json();
+    document.getElementById('last-checked').textContent = new Date().toLocaleTimeString();
+
+    const summary = document.getElementById('summary');
+    if (data.total === 0) {
+      summary.textContent = 'No spots recorded yet - is subscriber.py running and has simulator.py sent anything?';
+    } else {
+      summary.innerHTML =
+        `<strong>${data.free_count} of ${data.total}</strong> spots free &nbsp;&middot;&nbsp; ` +
+        `<strong>${data.event_count}</strong> total events logged`;
+    }
+
+    const grid = document.getElementById('grid');
+    grid.innerHTML = '';
+    data.spots.forEach(s => {
+      const time = new Date(s.updated_at * 1000).toLocaleTimeString();
+      const el = document.createElement('div');
+      el.className = 'spot ' + s.status;
+      el.innerHTML =
+        `<div class="id">${s.spot}</div>` +
+        `<div class="label">${s.status}</div>` +
+        `<div class="time">${time}</div>`;
+      grid.appendChild(el);
+    });
+  } catch (err) {
+    document.getElementById('summary').textContent =
+      'Could not reach dashboard.py - is it still running?';
+  }
+}
+
+refresh();
+setInterval(refresh, 1000);
+</script>
+</body>
+</html>

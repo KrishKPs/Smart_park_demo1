@@ -1,0 +1,36 @@
+# SQLite database - generated at runtime, not source
+parking.db
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Local Mosquitto broker files (if run for local testing)
+mosquitto-local.conf
+mosquitto.log
+
+# --- common ---
+# OS / editor
+.DS_Store
+._*
+.vscode/
+.idea/
+.claude/settings.local.json
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+*.egg-info/
+
+# Node
+node_modules/
+dist/
+*.log
