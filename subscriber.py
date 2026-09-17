@@ -64,8 +64,8 @@ HEALTH_CHECK_INTERVAL_SECONDS = 10
 
 
 # --- Node health tracking (in-memory only) ------------------------------
-# We deliberately do NOT add a "nodes" table for this - CLAUDE.md lists
-# a nodes/health table under "planned later tables, do not create yet".
+# We deliberately do NOT add a "nodes" table for this - a nodes/health table is
+# planned for later, not now.
 # Instead we just remember, in memory, the last time each node was seen
 # and which spots it reported. If the process restarts, this resets -
 # that's fine for Step 1's fake sensor; a persistent version can come

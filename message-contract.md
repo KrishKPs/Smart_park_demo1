@@ -5,8 +5,6 @@ the backend. Every part of the system - simulator, ESP32 firmware, and
 the backend subscriber - must follow this exactly. If it ever needs to
 change, update this file first and call it out, don't change it silently.
 
-This is a standalone copy of section 6 of `claude.md`, kept in sync with it.
-
 ---
 
 ## Topics
